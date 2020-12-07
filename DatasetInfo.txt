@@ -1,0 +1,3 @@
+https://www.kaggle.com/russellyates88/suicide-rates-overview-1985-to-2016
+References:
+https://www.who.int/data/data-collection-tools/who-mortality-database

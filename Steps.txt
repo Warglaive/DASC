@@ -1,0 +1,7 @@
+1. find 2019-2020 suicide rates
+2. take average death rate from 1st DB(Suicide Rates Overview 1985 to 2016) and 2nd(Corona times Suicide rates )
+3. Compare the two
+4. Make model
+5. Follow the model https://cdn.discordapp.com/attachments/702560539406106705/785554786878488616/clip_image001.png
+
+Use this as a guideline. Start with step 1 and 2. Repeat Transform and Visualise until you find something for a linear regression model. Apply model and write a conclusion into R markdown file.
