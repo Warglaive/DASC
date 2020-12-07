@@ -8,4 +8,4 @@ Use this as a guideline. Start with step 1 and 2. Repeat Transform and Visualise
 
 Goal:
 Compare deaths between western democratic countries vs eastern communist countries in Europe.
-take interesting causes of death (like drugs vs alcohol)
+take interesting causes of death (like drugs vs alcohol).
