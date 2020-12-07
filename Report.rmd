@@ -1,6 +1,15 @@
 
 ```{r}
+setwd('E:/DASC/resources')
 countrycodes <- read.csv("country_codes")
 mortalityicd9 <- read.csv("Morticd9")
 population <- read.csv("pop")
+```
+```{r}
+knitr.root.dir('E:/DASC/resources')
+```
+
+```{r setup, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir = "~E:/DASC/resources/")
 ```
