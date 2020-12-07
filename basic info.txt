@@ -5,3 +5,7 @@
 5. Follow the model https://cdn.discordapp.com/attachments/702560539406106705/785554786878488616/clip_image001.png
 
 Use this as a guideline. Start with step 1 and 2. Repeat Transform and Visualise until you find something for a linear regression model. Apply model and write a conclusion into R markdown file.
+
+ideas:
+Compare deaths in communism vs democratic contries
+Compare eastern block vs western countries 
