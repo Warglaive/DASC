@@ -1,0 +1,6 @@
+
+```{r}
+countrycodes <- read.csv("country_codes")
+mortalityicd9 <- read.csv("Morticd9")
+population <- read.csv("pop")
+```
