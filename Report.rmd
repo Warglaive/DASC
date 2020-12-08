@@ -1,15 +1,21 @@
+Exploration and analysis of the WHO mortality database.
+
+This notebook walks us trough a typical workflow of data analysis. From tiding the data to appling a linear regression modell and in the end communicate the results of our analysis.
+We dont want to show some kind of typical textbook example. Our goal is to display the real process. This means that we will ask questions about the data in our dataset and answer them with transformation and visualisation techniques. 
+In the end we want to apply a feasible linear regression model in order to gain insight into the futre development of the data.
+
+To do all this we use the WHO mortality database, which lists all kinds of possibile types of deaths in the WHO member states.
+The members of the WHO report the data from their civil registration systems into the database annually. We use the ICD-9 version which ranges from 1979 to 2017.
+
+This are the sources from the WHO.
+https://www.who.int/data/data-collection-tools/who-mortality-database
+
+
+Import
+We import these different files into R. The countrycodes file connects the countrys number to the name. Morticd9 is the mortality dataset itself. The population file contains informations about the population divided into the different age groups.
 
 ```{r}
-setwd('E:/DASC/resources')
 countrycodes <- read.csv("country_codes")
 mortalityicd9 <- read.csv("Morticd9")
 population <- read.csv("pop")
-```
-```{r}
-knitr.root.dir('E:/DASC/resources')
-```
-
-```{r setup, include=FALSE, echo=FALSE}
-require("knitr")
-opts_knit$set(root.dir = "~E:/DASC/resources/")
 ```
