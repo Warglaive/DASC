@@ -15,7 +15,31 @@ Import
 We import these different files into R. The countrycodes file connects the countrys number to the name. Morticd9 is the mortality dataset itself. The population file contains informations about the population divided into the different age groups.
 
 ```{r}
+setwd("C:/Users/Jan/Documents/GitHub/DASC/resources")
 countrycodes <- read.csv("country_codes")
 mortalityicd9 <- read.csv("Morticd9")
 population <- read.csv("pop")
 ```
+Restricting the dataset
+
+We want to compare communist and democratic countries during the cold war. Only countries that were either in the NATO or in the warsaw pact, until 1991 apply. Unfurtunatly our dataset is inconsistent because it does not ranges from the begining of Nato or the cold war. Therefore we only use data ranging from 1979 to 1991. 
+The Nato countries that are part of our data set are:
+USA, Canada, Portugal, Turkey, Greece, Italy, Austria, France, West Germany, Belgium,Luxembourg, Netherlands, Britan, Norway, Iceland. 
+
+The warsaw pact countries in our dataset are:
+Albania, Bulgaria, East Germany, Poland, Rumania, UDSSR, Czechoslovakia, Hungary.
+
+Splitting the Dataset
+
+We split the raw data and afterwards tidy it. This code is used to split the data.
+```{r}
+setwd("C:/Users/Jan/Documents/GitHub/DASC/resources")
+dividedbyyears <- subset(mortalityicd9, Year > 1979 & Year < 1991)
+
+countrys <- c("United States of America", "Canada", "Portugal", "Turkey", "Greece", "Germany, Former Democratic Republic", "Germany, Former Federal Republic", "	
+Germany, West Berlin", "Austria", "France", "Belgium", "Luxembourg", "Netherlands", "United Kingdom", "Norway", "Iceland", "Albania", "Bulgaria", "Poland", "Rumania", "USSR, Former","Czechoslovakia, Former", "Hungary")
+
+coldwarmortality <- subset(dividedbyyears,)
+```
+
+
