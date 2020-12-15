@@ -10,15 +10,21 @@ The members of the WHO report the data from their civil registration systems int
 This are the sources from the WHO.
 https://www.who.int/data/data-collection-tools/who-mortality-database
 
+Packages
+All the needed packages and librarys are defined here.
+```{r, setup, include=FALSE}
+knitr::opts_knit$set(root.dir = 'C:/Users/Jan/Documents/GitHub/DASC/resources')
+library(dplyr)
+```
 
 Import
-We import these different files into R. The countrycodes file connects the countrys number to the name. Morticd9 is the mortality dataset itself. The population file contains informations about the population divided into the different age groups.
+We import these different files into R. The countrycodes file connects the countrys number to the name. Morticd9 is the mortality dataset itself. The population file contains informations about the population divided into the different age groups. All files expect the detailedcauses can be found in our source. In order to get the detailed causes as a .csv file we copied the table from the word file into excel and then exported it as csv.
 
 ```{r}
-setwd("C:/Users/Jan/Documents/GitHub/DASC/resources")
 countrycodes <- read.csv("country_codes")
 mortalityicd9 <- read.csv("Morticd9")
 population <- read.csv("pop")
+detailedcause <- read.csv(file = "ICD-9BTL.csv", head = TRUE, sep=";")
 ```
 Restricting the dataset
 
@@ -33,13 +39,30 @@ Splitting the Dataset
 
 We split the raw data and afterwards tidy it. This code is used to split the data.
 ```{r}
-setwd("C:/Users/Jan/Documents/GitHub/DASC/resources")
-dividedbyyears <- subset(mortalityicd9, Year > 1979 & Year < 1991)
-
-countrys <- c("United States of America", "Canada", "Portugal", "Turkey", "Greece", "Germany, Former Democratic Republic", "Germany, Former Federal Republic", "	
+#List or Vector of countries have to check that
+countryslist <- c("United States of America", "Canada", "Portugal", "Turkey", "Greece", "Germany, Former Democratic Republic", "Germany, Former Federal Republic", "	
 Germany, West Berlin", "Austria", "France", "Belgium", "Luxembourg", "Netherlands", "United Kingdom", "Norway", "Iceland", "Albania", "Bulgaria", "Poland", "Rumania", "USSR, Former","Czechoslovakia, Former", "Hungary")
 
-coldwarmortality <- subset(dividedbyyears,)
+coldwarcountrys <- data.frame(matrix(unlist(countryslist), nrow=length(countryslist), byrow=T))%>%
+  rename("countryname" = "matrix.unlist.countryslist...nrow...length.countryslist...byrow...T.")
+
+splitdataset <- mortalityicd9 %>%
+  subset(Year >= 1979 & Year <= 1991) %>%
+  left_join(countrycodes, by = c("Country" = "country"))%>%
+  rename("countryname" = "name") %>%
+  semi_join(coldwarcountrys)
 ```
 
+Tidying the dataset
+We are only interested in the overall deaths and not the deaths by age group therefore we only keep the overall deaths. The causes of deaths are divided into categorys. We only keep the categroys and not the subcategories. For some countries there are special numbers for the cause. These numbered categories get connected to the categorys beginning with "B". 
+
+Step1
+Drop every column that isnt needed and reorder the dataset.
+```{r}
+test <- splitdataset %>%
+  subset(select = c(1, 4, 6, 7, 10, 40))%>%
+  select(countryname, Country, Year, Cause, Sex, Deaths1)%>%
+  rename("Deathcount" = "Deaths1")
+  
+```
 
