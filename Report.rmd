@@ -56,13 +56,18 @@ splitdataset <- mortalityicd9 %>%
 Tidying the dataset
 We are only interested in the overall deaths and not the deaths by age group therefore we only keep the overall deaths. The causes of deaths are divided into categorys. We only keep the categroys and not the subcategories. For some countries there are special numbers for the cause. These numbered categories get connected to the categorys beginning with "B". 
 
-Step1
-Drop every column that isnt needed and reorder the dataset.
 ```{r}
 test <- splitdataset %>%
   subset(select = c(1, 4, 6, 7, 10, 40))%>%
   select(countryname, Country, Year, Cause, Sex, Deaths1)%>%
-  rename("Deathcount" = "Deaths1")
-  
+  rename("Deathcount" = "Deaths1")%>%
+  subset(grepl("^B\\d{0,2}$", Cause))
+```
+
+
+Exploring the dataset
+```{r}
+ggplot(data = test) +
+  geom_point(mapping = aes(x = Year, y = cause))
 ```
 
