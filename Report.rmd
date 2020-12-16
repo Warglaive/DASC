@@ -77,3 +77,16 @@ subcategories <- splitdataset%>%
   subset(grepl("^B", Cause)) #I dunno why I had to do this twice in order to eliminate numbers
 ```
 
+Question1
+Is the suicide rate higher in countries part of the warsaw pact?
+```{r}
+suiciderate <- dataset%>%
+  filter(Cause == "B54")
+
+suiciderateussr <-  suiciderate%>%
+  filter(countryname == "USSR, Former")
+
+ggplot(data = suiciderateussr)+
+  geom_point(mapping = aes(x = Year, y = Deathcount))
+```
+
