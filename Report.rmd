@@ -15,6 +15,7 @@ All the needed packages and librarys are defined here.
 ```{r, setup, include=FALSE}
 knitr::opts_knit$set(root.dir = 'C:/Users/Jan/Documents/GitHub/DASC/resources')
 library(dplyr)
+library(ggplot2)
 ```
 
 Import
@@ -54,20 +55,25 @@ splitdataset <- mortalityicd9 %>%
 ```
 
 Tidying the dataset
-We are only interested in the overall deaths and not the deaths by age group therefore we only keep the overall deaths. The causes of deaths are divided into categorys. We only keep the categroys and not the subcategories. For some countries there are special numbers for the cause. These numbered categories get connected to the categorys beginning with "B". 
+
+The death cause categories are divided into two different types. The "Detailed List Numbers" which are numbers connected to a cause and the BTL (Basic Tabulation List). BTL categorizes the numbers, for example B24 contains the numbers 380-389. But BTL is further divided, so B240 is a subcategory of B24 containing the numbers 381-383.
+In the dataset B24 also contains all deaths of its subcategories. The the targetet audience of this document are no health experts. Therefore only the BTL categories with two numbers are included.
+The columns Deaths2, Deaths3,... stand for age groups, but Deaths1 sums up all age groups and Infants.
+Therefore all other death columns get excluded.
+In the Documentation there is a chapter 17 for ICD-9 all these "Detailed List Numbers" are already included in the BTL categories. Therefore they get thrown out.
 
 ```{r}
-test <- splitdataset %>%
+dataset <- splitdataset %>%
   subset(select = c(1, 4, 6, 7, 10, 40))%>%
   select(countryname, Country, Year, Cause, Sex, Deaths1)%>%
   rename("Deathcount" = "Deaths1")%>%
   subset(grepl("^B\\d{0,2}$", Cause))
-```
 
-
-Exploring the dataset
-```{r}
-ggplot(data = test) +
-  geom_point(mapping = aes(x = Year, y = cause))
+subcategories <- splitdataset%>%
+  subset(select = c(1, 4, 6, 7, 10, 40))%>%
+  select(countryname, Country, Year, Cause, Sex, Deaths1)%>%
+  rename("Deathcount" = "Deaths1")%>%
+  subset(!grepl("^B\\d{0,2}$", Cause))%>%
+  subset(grepl("^B", Cause)) #I dunno why I had to do this twice in order to eliminate numbers
 ```
 
