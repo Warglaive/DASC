@@ -27,6 +27,34 @@ mortalityicd9 <- read.csv("Morticd9")
 population <- read.csv("pop")
 detailedcause <- read.csv(file = "ICD-9BTL.csv", head = TRUE, sep=";")
 ```
+
+Tidying the dataset
+
+The death cause categories are divided into two different types. The "Detailed List Numbers" which are numbers connected to a cause and the BTL (Basic Tabulation List). BTL categorizes the numbers, for example B24 contains the numbers 380-389. But BTL is further divided, so B240 is a subcategory of B24 containing the numbers 381-383.
+In the dataset B24 also contains all deaths of its subcategories. The the targetet audience of this document are no health experts. Therefore only the BTL categories with two numbers are included.
+The columns Deaths2, Deaths3,... stand for age groups, but Deaths1 sums up all age groups and Infants.
+Therefore all other death columns get excluded.
+In the Documentation there is a chapter 17 for ICD-9 all these "Detailed List Numbers" are already included in the BTL categories. Therefore they get thrown out.
+
+```{r}
+dataset <- mortalityicd9 %>%
+  left_join(countrycodes, by = c("Country" = "country"))%>%
+  rename("Countryname" = "name") %>%
+  subset(select = c(1, 4, 6, 7, 10, 40))%>%
+  select(Countryname, Country, Year, Cause, Sex, Deaths1)%>%
+  rename("Deathcount" = "Deaths1")%>%
+  subset(grepl("^B\\d{0,2}$", Cause))
+
+subcategories <- mortalityicd9 %>%
+  left_join(countrycodes, by = c("Country" = "country"))%>%
+  rename("Countryname" = "name") %>%
+  subset(select = c(1, 4, 6, 7, 10, 40))%>%
+  select(Countryname, Country, Year, Cause, Sex, Deaths1)%>%
+  rename("Deathcount" = "Deaths1")%>%
+  subset(!grepl("^B\\d{0,2}$", Cause))%>%
+  subset(grepl("^B", Cause)) #I dunno why I had to do this twice in order to eliminate numbers
+```
+
 Restricting the dataset
 
 We want to compare communist and democratic countries during the cold war. Only countries that were either in the NATO or in the warsaw pact, until 1991 apply. Unfurtunatly our dataset is inconsistent because it does not ranges from the begining of Nato or the cold war. Therefore we only use data ranging from 1979 to 1991. 
@@ -41,41 +69,25 @@ Splitting the Dataset
 We split the raw data and afterwards tidy it. This code is used to split the data.
 ```{r}
 #List or Vector of countries have to check that
-countryslist <- c("United States of America", "Canada", "Portugal", "Turkey", "Greece", "Germany, Former Democratic Republic", "Germany, Former Federal Republic", "	
-Germany, West Berlin", "Austria", "France", "Belgium", "Luxembourg", "Netherlands", "United Kingdom", "Norway", "Iceland", "Albania", "Bulgaria", "Poland", "Rumania", "USSR, Former","Czechoslovakia, Former", "Hungary")
+warsawpact <- c("Germany, Former Federal Republic", "Albania", "Bulgaria", "Poland", "Romania", "USSR, Former","Czechoslovakia, Former", "Hungary")
+
+natostates <- c("United States of America", "Canada", "Portugal", "Turkey", "Greece", "Germany, Former Democratic Republic", "Germany, Former Federal Republic", "	
+Germany, West Berlin", "Austria", "France", "Belgium", "Luxembourg", "Netherlands", "United Kingdom", "Norway", "Iceland")
+
+countryslist <- c(warsawpact, natostates)
 
 coldwarcountrys <- data.frame(matrix(unlist(countryslist), nrow=length(countryslist), byrow=T))%>%
-  rename("countryname" = "matrix.unlist.countryslist...nrow...length.countryslist...byrow...T.")
+  rename("Countryname" = "matrix.unlist.countryslist...nrow...length.countryslist...byrow...T.")
 
-splitdataset <- mortalityicd9 %>%
+#explain semi join
+splitdataset <- dataset %>%
   subset(Year >= 1979 & Year <= 1991) %>%
-  left_join(countrycodes, by = c("Country" = "country"))%>%
-  rename("countryname" = "name") %>%
   semi_join(coldwarcountrys)
+
+russiaicd10 <- icd10part1%>%
+  filter(Country == 4272)
 ```
 
-Tidying the dataset
-
-The death cause categories are divided into two different types. The "Detailed List Numbers" which are numbers connected to a cause and the BTL (Basic Tabulation List). BTL categorizes the numbers, for example B24 contains the numbers 380-389. But BTL is further divided, so B240 is a subcategory of B24 containing the numbers 381-383.
-In the dataset B24 also contains all deaths of its subcategories. The the targetet audience of this document are no health experts. Therefore only the BTL categories with two numbers are included.
-The columns Deaths2, Deaths3,... stand for age groups, but Deaths1 sums up all age groups and Infants.
-Therefore all other death columns get excluded.
-In the Documentation there is a chapter 17 for ICD-9 all these "Detailed List Numbers" are already included in the BTL categories. Therefore they get thrown out.
-
-```{r}
-dataset <- splitdataset %>%
-  subset(select = c(1, 4, 6, 7, 10, 40))%>%
-  select(countryname, Country, Year, Cause, Sex, Deaths1)%>%
-  rename("Deathcount" = "Deaths1")%>%
-  subset(grepl("^B\\d{0,2}$", Cause))
-
-subcategories <- splitdataset%>%
-  subset(select = c(1, 4, 6, 7, 10, 40))%>%
-  select(countryname, Country, Year, Cause, Sex, Deaths1)%>%
-  rename("Deathcount" = "Deaths1")%>%
-  subset(!grepl("^B\\d{0,2}$", Cause))%>%
-  subset(grepl("^B", Cause)) #I dunno why I had to do this twice in order to eliminate numbers
-```
 
 Question1
 Is the suicide rate higher in countries part of the warsaw pact?
@@ -83,10 +95,24 @@ Is the suicide rate higher in countries part of the warsaw pact?
 suiciderate <- dataset%>%
   filter(Cause == "B54")
 
-suiciderateussr <-  suiciderate%>%
-  filter(countryname == "USSR, Former")
+#This pick function
+pick <- function(condition){
+  function(d) d %>% filter_(condition)
+}
 
-ggplot(data = suiciderateussr)+
-  geom_point(mapping = aes(x = Year, y = Deathcount))
+ggplot(suiciderate, aes(x = Year, y = Deathcount))+
+  geom_point()+
+  geom_point(data = pick(~Countryname == "USSR, Former"), colour = "red")+
+  geom_point(data = pick(~Countryname == "Russian Federation"), colour = "green")
+
+ggplot(suiciderate, aes(x = Year, y = Deathcount))+
+  geom_point(data = pick(~Countryname == "Russian Federation"), colour = "green")
+
+ggplot(suiciderate, aes(x = Year, y = Deathcount))+
+  geom_point(data = pick(~Countryname == "USSR, Former"), colour = "red")
 ```
+
+TODO
+1. Add Zeros in cause.csv
+  The zeros in the second column are missing reimport, rename and delete useless rows.
 
