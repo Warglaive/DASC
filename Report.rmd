@@ -69,30 +69,42 @@ Splitting the Dataset
 We split the raw data and afterwards tidy it. This code is used to split the data.
 ```{r}
 #List or Vector of countries have to check that
-warsawpact <- c("Germany, Former Federal Republic", "Albania", "Bulgaria", "Poland", "Romania", "USSR, Former","Czechoslovakia, Former", "Hungary")
+warsawpact <- c("Germany, Former Federal Republic", "Albania", "Bulgaria", "Poland", "Romania", "USSR, Former","Czechoslovakia, Former", "Hungary", "Russian Federation")
 
 natostates <- c("United States of America", "Canada", "Portugal", "Turkey", "Greece", "Germany, Former Democratic Republic", "Germany, Former Federal Republic", "	
 Germany, West Berlin", "Austria", "France", "Belgium", "Luxembourg", "Netherlands", "United Kingdom", "Norway", "Iceland")
+
+warsawpactcountries <- data.frame(matrix(unlist(warsawpact), nrow=length(warsawpact), byrow=T))%>%
+  rename("Countryname" = "matrix.unlist.warsawpact...nrow...length.warsawpact...byrow...T.")
+
+natocountries <- data.frame(matrix(unlist(natostates), nrow=length(natostates), byrow=T))%>%
+  rename("Countryname" = "matrix.unlist.natostates...nrow...length.natostates...byrow...T.")
 
 countryslist <- c(warsawpact, natostates)
 
 coldwarcountrys <- data.frame(matrix(unlist(countryslist), nrow=length(countryslist), byrow=T))%>%
   rename("Countryname" = "matrix.unlist.countryslist...nrow...length.countryslist...byrow...T.")
 
-#explain semi join
-splitdataset <- dataset %>%
+#The different dataset divided by affiliation
+coldwardataset <- dataset %>%
   subset(Year >= 1979 & Year <= 1991) %>%
   semi_join(coldwarcountrys)
 
-russiaicd10 <- icd10part1%>%
-  filter(Country == 4272)
+warsawpactdataset <- dataset%>% 
+  subset(Year >= 1979 & Year <= 1991) %>%
+  semi_join(warsawpactcountries)
+
+natodataset <- dataset%>% 
+  subset(Year >= 1979 & Year <= 1991) %>%
+  semi_join(natocountries)
+
 ```
 
 
 Question1
 Is the suicide rate higher in countries part of the warsaw pact?
 ```{r}
-suiciderate <- dataset%>%
+suiciderate <- coldwardataset%>%
   filter(Cause == "B54")
 
 #This pick function
@@ -101,18 +113,93 @@ pick <- function(condition){
 }
 
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
-  geom_point()+
-  geom_point(data = pick(~Countryname == "USSR, Former"), colour = "red")+
-  geom_point(data = pick(~Countryname == "Russian Federation"), colour = "green")
+  geom_point()
+
+suicideranking <- suiciderate%>%
+  group_by(Countryname)%>%
+  summarise(Deathcount = sum(Deathcount))%>%
+  arrange(desc(Deathcount))
+  
+```
+We can see that the date seems to be quite off.  
+```{r}
+ggplot(suiciderate, aes(x = Year, y = Deathcount))+
+  geom_line(data = pick(~Countryname == "USSR, Former" & Sex==2), colour = "pink")+
+  geom_line(data = pick(~Countryname == "USSR, Former" & Sex==1), colour = "blue")
 
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
-  geom_point(data = pick(~Countryname == "Russian Federation"), colour = "green")
+  geom_line(data = pick(~Countryname == "United States of America" & Sex==1), colour = "blue")+
+  geom_line(data = pick(~Countryname == "United States of America" & Sex==2), colour = "pink")
 
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
-  geom_point(data = pick(~Countryname == "USSR, Former"), colour = "red")
+  geom_line(data = pick(~Countryname == "Russian Federation" & Sex==1), colour = "blue")+
+  geom_line(data = pick(~Countryname == "Russian Federation" & Sex==2), colour = "pink")
+```
+We can see that the suicide rate in the former USSR is way higher then anywhere else. 
+We can see that the Russian Federation has the second highest overall suicide rate.
+Its deaths are part of the USSR. The Russian Federation is equivalent to todays russia. 
+Its a more rural area compared to the other states of the USSR.
+The reason for the high suicide rates is the harmful impact of the Soviet regime on rural life. 
+Collective farms were organized against peoples will. Rural areas lacked food supply, medical care and social welfare. 
+Citate
+The USSR shows a big drop in suicides in 1985. The reason for that is the Perestroika. 
+Perestroika served as a positive social factor, reducing the number of suicides. It is hard to tell which
+contributed more, psychological freedom and hopes
+for the future or restrictions on the sale of alcohol. 
+Citate
+https://pubmed.ncbi.nlm.nih.gov/1414406/#:~:text=Abstract,1965%20to%2029.6%20in%201984.
+
+```{r}
+tofilter <- suicideranking%>%
+  tail(-5)
+
+suicidesmoothed <- suiciderate %>%
+  semi_join(tofilter, by="Countryname")
+
+ggplot(suicidesmoothed, aes(x = Year, y = Deathcount))+
+  geom_smooth(data = pick(~Sex==1), color="Blue")+
+  geom_smooth(data = pick(~Sex==2), color="Pink")
+```
+In order to better compare the different countries, the top five countries are exclouded.
+After that I compared male and female suicide rates. The diagram shows that the male suicide rate is way
+higher than the female one.
+
+
+```{r}
+ggplot(suicidesmoothed, aes(x = Year, y = Deathcount))+
+  geom_smooth(data = pick(~Countryname %in% warsawpact), color="Red")+
+  geom_smooth(data = pick(~Countryname %in% natostates), color="Blue")
+```
+When comparing the countries by membirship to either the warsaw pact or nato, 
+wesee that the suicide rate from countries in the warsaw pact are way higher. 
+Even when the USSR and Russian Federation is excluded.
+
+```{r}
+test <- subcategories %>%
+  subset(Year >= 1979 & Year <= 1991) %>%
+  semi_join(coldwarcountrys)%>%
+  filter(Cause=="B481")
+  
+poioning <- coldwardataset%>%
+  filter(Cause=="B48" | Cause=="B50")
+
+ggplot(poioningAndFalls, aes(x=Year, y=Deathcount))+
+  geom_point(data = pick(~Countryname=="USSR, Former" & Sex==1 & Cause=="B50"), color="Blue", shape=17)+
+  geom_point(data = pick(~Countryname=="USSR, Former" & Sex==2 & Cause=="B50"), color="Pink", shape=17)+
+  geom_point(data = pick(~Countryname=="USSR, Former" & Sex==1 & Cause=="B48"), color="Blue")+
+  geom_point(data = pick(~Countryname=="USSR, Former" & Sex==2 & Cause=="B48"), color="Pink")
 ```
 
 TODO
 1. Add Zeros in cause.csv
   The zeros in the second column are missing reimport, rename and delete useless rows.
+2. Add proper citations in question1
+3. Switch from geom_point to linear
+4. Explain semi join
+5. Explain what you did during tiding
+6. Explain suicideRanking
+7. Clear naming convention 
+   In the beginning divide into usefull clear datasets. Then divide by disease.
+   Or switch to lesser datasets, when there are too much datasets. 
+8. Description for every ggplot. Legende
 
