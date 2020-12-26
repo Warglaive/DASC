@@ -159,8 +159,8 @@ ggplot(suicidesmoothed, aes(x = Year, y = Deathcount))+
   geom_smooth(data = pick(~Sex==1), color="Blue")+
   geom_smooth(data = pick(~Sex==2), color="Pink")
 ```
-In order to better compare the different countries, the top five countries are exclouded.
-After that I compared male and female suicide rates. The diagram shows that the male suicide rate is way
+In order to better compare the different countries, the top five countries are excluded.
+After that we compared male and female suicide rates. The diagram shows that the male suicide rate is way
 higher than the female one.
 
 
@@ -169,9 +169,9 @@ ggplot(suicidesmoothed, aes(x = Year, y = Deathcount))+
   geom_smooth(data = pick(~Countryname %in% warsawpact), color="Red")+
   geom_smooth(data = pick(~Countryname %in% natostates), color="Blue")
 ```
-When comparing the countries by membirship to either the warsaw pact or nato, 
-we see that the suicide rate from countries in the warsaw pact are way higher. 
-Even when the USSR and Russian Federation is excluded.
+When comparing the countries by membership to either the Warsaw pact or NATO, 
+we see that the suicide rate in the Warsaw pact countries is way higher. 
+Even when USSR is excluded.
 
 ```{r}
 test <- subcategories %>%
