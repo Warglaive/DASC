@@ -171,24 +171,36 @@ ggplot(suicidesmoothed, aes(x = Year, y = Deathcount))+
   geom_smooth(data = pick(~Countryname %in% natostates), color="Blue")
 ```
 When comparing the countries by membirship to either the warsaw pact or nato, 
-wesee that the suicide rate from countries in the warsaw pact are way higher. 
+we see that the suicide rate from countries in the warsaw pact are way higher. 
 Even when the USSR and Russian Federation is excluded.
 
 ```{r}
 test <- subcategories %>%
   subset(Year >= 1979 & Year <= 1991) %>%
   semi_join(coldwarcountrys)%>%
-  filter(Cause=="B481")
-  
-poioning <- coldwardataset%>%
-  filter(Cause=="B48" | Cause=="B50")
+  filter(Cause=="B037")
 
-ggplot(poioningAndFalls, aes(x=Year, y=Deathcount))+
-  geom_point(data = pick(~Countryname=="USSR, Former" & Sex==1 & Cause=="B50"), color="Blue", shape=17)+
-  geom_point(data = pick(~Countryname=="USSR, Former" & Sex==2 & Cause=="B50"), color="Pink", shape=17)+
-  geom_point(data = pick(~Countryname=="USSR, Former" & Sex==1 & Cause=="B48"), color="Blue")+
-  geom_point(data = pick(~Countryname=="USSR, Former" & Sex==2 & Cause=="B48"), color="Pink")
+test2 <- warsawpactdataset%>%
+  filter(Cause=="B04")
+  #filter(Countryname!="USSR, Former" & Countryname!="Russian Federation" & Countryname!="Germany, Former Federal Republic")
+  
+ggplot(test, aes(x=Year, y=Deathcount, group=Countryname, color=Countryname))+
+  geom_point()
 ```
+
+
+```{r}
+
+  
+poisoning <- coldwardataset%>%
+  filter(Cause=="B48" | Cause=="B50")%>%
+  filter(!Countryname=="USSR, Former")%>%
+  filter(!Countryname=="Russian Federation")
+
+ggplot(poisoning, aes(x=Year, y=Deathcount, group=Countryname, color=Countryname))+
+  geom_point()
+```
+
 
 TODO
 1. Add Zeros in cause.csv
