@@ -102,7 +102,7 @@ natodataset <- dataset%>%
 
 
 Question1
-Is the suicide rate higher in countries part of the warsaw pact?
+Is the suicide rate higher in countries part of the Warsaw pact?
 ```{r}
 suiciderate <- coldwardataset%>%
   filter(Cause == "B54")
@@ -137,8 +137,8 @@ ggplot(suiciderate, aes(x = Year, y = Deathcount))+
 ```
 We can see that the suicide rate in the former USSR is way higher then anywhere else. 
 We can see that the Russian Federation has the second highest overall suicide rate.
-Its deaths are part of the USSR. The Russian Federation is equivalent to todays russia. 
-Its a more rural area compared to the other states of the USSR.
+The Russian Federation's deaths are part of the USSR's deaths.
+Russia a more rural area compared to the other states of the USSR.
 The reason for the high suicide rates is the harmful impact of the Soviet regime on rural life. 
 Collective farms were organized against peoples will. Rural areas lacked food supply, medical care and social welfare. 
 Citate
