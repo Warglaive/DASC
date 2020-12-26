@@ -1,10 +1,10 @@
 Exploration and analysis of the WHO mortality database.
 
-This notebook walks us trough a typical workflow of data analysis. From tiding the data to appling a linear regression modell and in the end communicate the results of our analysis.
-We dont want to show some kind of typical textbook example. Our goal is to display the real process. This means that we will ask questions about the data in our dataset and answer them with transformation and visualisation techniques. 
-In the end we want to apply a feasible linear regression model in order to gain insight into the futre development of the data.
+This notebook walks us trough a typical workflow of data analysis. From tiding the data to applying a linear regression model and in the end communicate the results of our analysis.
+We do not want to show some kind of typical textbook example. Our goal is to display the real process. This means that we will ask questions about the data in our dataset and answer them with transformation and visualisation techniques. 
+In the end we want to apply a feasible linear regression model in order to gain insight into the future development of the data.
 
-To do all this we use the WHO mortality database, which lists all kinds of possibile types of deaths in the WHO member states.
+To do all this we use the WHO mortality database, which lists all kinds of possible types of deaths in the WHO member states.
 The members of the WHO report the data from their civil registration systems into the database annually. We use the ICD-9 version which ranges from 1979 to 2017.
 
 This are the sources from the WHO.
@@ -19,7 +19,7 @@ library(ggplot2)
 ```
 
 Import
-We import these different files into R. The countrycodes file connects the countrys number to the name. Morticd9 is the mortality dataset itself. The population file contains informations about the population divided into the different age groups. All files expect the detailedcauses can be found in our source. In order to get the detailed causes as a .csv file we copied the table from the word file into excel and then exported it as csv.
+We import these different files into R. The countrycodes file connects the countries` number to the name. Morticd9 is the mortality dataset itself. The population file contains information about the population divided into the different age groups. All files except the detailed causes can be found in our source. In order to get the detailed causes as a .csv file we copied the table from the word file into excel and then exported it as csv.
 
 ```{r}
 countrycodes <- read.csv("country_codes")
@@ -31,7 +31,7 @@ detailedcause <- read.csv(file = "ICD-9BTL.csv", head = TRUE, sep=";")
 Tidying the dataset
 
 The death cause categories are divided into two different types. The "Detailed List Numbers" which are numbers connected to a cause and the BTL (Basic Tabulation List). BTL categorizes the numbers, for example B24 contains the numbers 380-389. But BTL is further divided, so B240 is a subcategory of B24 containing the numbers 381-383.
-In the dataset B24 also contains all deaths of its subcategories. The the targetet audience of this document are no health experts. Therefore only the BTL categories with two numbers are included.
+In the dataset B24 also contains all deaths of its subcategories.The targeted audience of this document are no health experts. Therefore only the BTL categories with two numbers are included.
 The columns Deaths2, Deaths3,... stand for age groups, but Deaths1 sums up all age groups and Infants.
 Therefore all other death columns get excluded.
 In the Documentation there is a chapter 17 for ICD-9 all these "Detailed List Numbers" are already included in the BTL categories. Therefore they get thrown out.
@@ -52,17 +52,17 @@ subcategories <- mortalityicd9 %>%
   select(Countryname, Country, Year, Cause, Sex, Deaths1)%>%
   rename("Deathcount" = "Deaths1")%>%
   subset(!grepl("^B\\d{0,2}$", Cause))%>%
-  subset(grepl("^B", Cause)) #I dunno why I had to do this twice in order to eliminate numbers
+  subset(grepl("^B", Cause)) #I don't know why I had to do this twice in order to eliminate numbers
 ```
 
 Restricting the dataset
 
-We want to compare communist and democratic countries during the cold war. Only countries that were either in the NATO or in the warsaw pact, until 1991 apply. Unfurtunatly our dataset is inconsistent because it does not ranges from the begining of Nato or the cold war. Therefore we only use data ranging from 1979 to 1991. 
-The Nato countries that are part of our data set are:
-USA, Canada, Portugal, Turkey, Greece, Italy, Austria, France, West Germany, Belgium,Luxembourg, Netherlands, Britan, Norway, Iceland. 
+We want to compare communist and democratic countries during the cold war. Only countries that were either in the NATO or in the Warsaw pact, until 1991 apply. Unfortunately our dataset is inconsistent because it does not ranges from the creation of NATO or the start of  the cold war. Therefore we only use data ranging from 1979 to 1991. 
+The NATO countries that are part of our data set are:
+USA, Canada, Portugal, Turkey, Greece, Italy, Austria, France, West Germany, Belgium,Luxembourg, Netherlands, Britain, Norway, Iceland. 
 
-The warsaw pact countries in our dataset are:
-Albania, Bulgaria, East Germany, Poland, Rumania, UDSSR, Czechoslovakia, Hungary.
+The Warsaw pact countries in our dataset are:
+Albania, Bulgaria, East Germany, Poland, Romania, USSR, Czechoslovakia, Hungary.
 
 Splitting the Dataset
 
