@@ -21,6 +21,21 @@ library(tidyverse)
 
 Import
 We import these different files into R. The countrycodes file connects the countries` number to the name. Morticd9 is the mortality dataset itself. The population file contains information about the population divided into the different age groups. All files except the detailed causes can be found in our source. In order to get the detailed causes as a .csv file we copied the table from the word file into excel and then exported it as csv.
+```{r}
+#This pick function
+pick <- function(condition){
+  function(d) d %>% filter_(condition)
+}
+
+round_df <- function(x, digits) {
+    # round all numeric variables
+    # x: data frame 
+    # digits: number of digits to round
+    numeric_columns <- sapply(x, mode) == 'numeric'
+    x[numeric_columns] <-  round(x[numeric_columns], digits)
+    x
+}
+```
 
 ```{r}
 countrycodes <- read.csv("country_codes")
@@ -38,22 +53,32 @@ Therefore all other death columns get excluded.
 In the Documentation there is a chapter 17 for ICD-9 all these "Detailed List Numbers" are already included in the BTL categories. Therefore they get thrown out.
 
 ```{r}
+populationTidy <- population%>%
+  subset(select = c(1,4,5,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33))%>%
+  rename("Country" = "Country","Year"="Year", "Sex"="Sex","All"="Pop1", "0" = "Pop2", "1"="Pop3", "2"="Pop4", "3"="Pop5", "4"="Pop6","5-9"="Pop7","10-14"="Pop8", "15-19"="Pop9", "20-24"="Pop10", "25-29"="Pop11", "30-34"="Pop12", "35-39"="Pop13", "40-44"="Pop14", "45-49"="Pop15", "50-54"="Pop16", "55-59"="Pop17", "60-64"="Pop18", "65-69"="Pop19", "70-74"="Pop20", "75-79"="Pop21", "80-84"="Pop22", "85-89"="Pop23", "90-94"="Pop24", "95+"="Pop25", "unspecified"="Pop26","Birth"="Lb")
+
 dataset <- mortalityicd9 %>%
   left_join(countrycodes, by = c("Country" = "country"))%>%
   rename("Countryname" = "name") %>%
-  subset(select = c(1, 4, 6, 7, 10, 40))%>%
-  select(Countryname, Country, Year, Cause, Sex, Deaths1)%>%
-  rename("Deathcount" = "Deaths1")%>%
+  inner_join(populationTidy,by=c("Country"="Country","Sex"="Sex","Year"="Year"))%>%
+  mutate(Deathcount=Deaths1/All*100000)%>%
+  round_df(2)%>%
+  subset(select = c(1, 4, 6, 7, 10, 40,41,68))%>%
+  select(Countryname, Country, Year, Cause, Sex, Deaths1,Deathcount)%>%
+  rename("OverallDeaths" = "Deaths1")%>%
   subset(grepl("^B\\d{0,2}$", Cause))
 
 subcategories <- mortalityicd9 %>%
   left_join(countrycodes, by = c("Country" = "country"))%>%
   rename("Countryname" = "name") %>%
-  subset(select = c(1, 4, 6, 7, 10, 40))%>%
-  select(Countryname, Country, Year, Cause, Sex, Deaths1)%>%
-  rename("Deathcount" = "Deaths1")%>%
+  inner_join(populationTidy,by=c("Country"="Country","Sex"="Sex","Year"="Year"))%>%
+  mutate(Deathcount=Deaths1/All*100000)%>%
+  round_df(2)%>%
+  subset(select = c(1, 4, 6, 7, 10, 40,41,68))%>%
+  select(Countryname, Country, Year, Cause, Sex, Deaths1,Deathcount)%>%
+  rename("OverallDeaths" = "Deaths1")%>%
   subset(!grepl("^B\\d{0,2}$", Cause))%>%
-  subset(grepl("^B", Cause)) #I don't know why I had to do this twice in order to eliminate numbers
+  subset(grepl("^B", Cause)) 
 ```
 
 Restricting the dataset
@@ -69,7 +94,6 @@ Splitting the Dataset
 
 We split the raw data and afterwards tidy it. This code is used to split the data.
 ```{r}
-#List or Vector of countries have to check that
 warsawpact <- c("Germany, Former Federal Republic", "Albania", "Bulgaria", "Poland", "Romania", "USSR, Former","Czechoslovakia, Former", "Hungary", "Russian Federation")
 
 natostates <- c("United States of America", "Canada", "Portugal", "Turkey", "Greece", "Germany, Former Democratic Republic", "Germany, Former Federal Republic", "	
@@ -86,7 +110,6 @@ countryslist <- c(warsawpact, natostates)
 coldwarcountrys <- data.frame(matrix(unlist(countryslist), nrow=length(countryslist), byrow=T))%>%
   rename("Countryname" = "matrix.unlist.countryslist...nrow...length.countryslist...byrow...T.")
 
-#The different dataset divided by affiliation
 coldwardataset <- dataset %>%
   subset(Year >= 1979 & Year <= 1991) %>%
   semi_join(coldwarcountrys)
@@ -108,11 +131,6 @@ Is the suicide rate higher in countries part of the Warsaw pact?
 suiciderate <- coldwardataset%>%
   filter(Cause == "B54")
 
-#This pick function
-pick <- function(condition){
-  function(d) d %>% filter_(condition)
-}
-
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
   geom_point()
 
@@ -122,6 +140,7 @@ suicideranking <- suiciderate%>%
   arrange(desc(Deathcount))
   
 ```
+
 We can see that the date seems to be quite off.  
 ```{r}
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
@@ -182,8 +201,9 @@ SubcategoriesAndAgeGroups <- mortalityicd9 %>%
   subset(select = c(1, 4, 6, 7, 11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35, 40))%>%
   rename("Countryname" = "name","0" = "Deaths2", "1"="Deaths3", "2"="Deaths4", "3"="Deaths5", "4"="Deaths6","5-9"="Deaths7","10-14"="Deaths8", "15-19"="Deaths9", "20-24"="Deaths10", "25-29"="Deaths11", "30-34"="Deaths12", "35-39"="Deaths13", "40-44"="Deaths14", "45-49"="Deaths15", "50-54"="Deaths16", "55-59"="Deaths17", "60-64"="Deaths18", "65-69"="Deaths19", "70-74"="Deaths20", "75-79"="Deaths21", "80-84"="Deaths22", "85-89"="Deaths23", "90-94"="Deaths24", "95+"="Deaths25", "unspecified"="Deaths26") %>%
   subset(!grepl("^B\\d{0,2}$", Cause))%>%
-  subset(grepl("^B", Cause)) #I dunno why I had to do this twice in order to eliminate numbers
+  subset(grepl("^B", Cause)) 
 
+#Explain why NULL == 0
 SubcategoriesAndAgeGroups[is.na(SubcategoriesAndAgeGroups)] <- 0
 
 analysis <- SubcategoriesAndAgeGroups%>%
@@ -203,13 +223,13 @@ TODO
   The zeros in the second column are missing reimport, rename and delete useless rows.
 2. Add proper citations in question1
 3. Switch from geom_point to linear
-4. Explain semi join
+4. Explain commands after using them in general. 
 5. Explain what you did during tiding
 6. Explain suicideRanking
 7. Clear naming convention 
    In the beginning divide into usefull clear datasets. Then divide by disease.
    Or switch to lesser datasets, when there are too much datasets. 
 8. Description for every ggplot. Legende
-9. Data in relation to the population
 10. Linear regression by comparing east and west germany. Or both with later germany.
-
+11. All functions into one code Block in the beginning
+12. Does smoothed makes sense with USSR, Russia? Because The numbers seem to be higher then they are without them.
