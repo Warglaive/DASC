@@ -16,6 +16,7 @@ All the needed packages and librarys are defined here.
 knitr::opts_knit$set(root.dir = 'C:/Users/Jan/Documents/GitHub/DASC/resources')
 library(dplyr)
 library(ggplot2)
+library(tidyverse)
 ```
 
 Import
@@ -175,32 +176,28 @@ we see that the suicide rate from countries in the warsaw pact are way higher.
 Even when the USSR and Russian Federation is excluded.
 
 ```{r}
-test <- subcategories %>%
-  subset(Year >= 1979 & Year <= 1991) %>%
-  semi_join(coldwarcountrys)%>%
-  filter(Cause=="B037")
+longer <- c("0", "1", "2", "3", "4", "5-9","10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90-94", "95+", "unspecified")
 
-test2 <- warsawpactdataset%>%
-  filter(Cause=="B04")
-  #filter(Countryname!="USSR, Former" & Countryname!="Russian Federation" & Countryname!="Germany, Former Federal Republic")
-  
-ggplot(test, aes(x=Year, y=Deathcount, group=Countryname, color=Countryname))+
-  geom_point()
+SubcategoriesAndAgeGroups <- mortalityicd9 %>%
+  left_join(countrycodes, by = c("Country" = "country"))%>%
+  subset(select = c(1, 4, 6, 7, 11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35, 40))%>%
+  rename("Countryname" = "name","0" = "Deaths2", "1"="Deaths3", "2"="Deaths4", "3"="Deaths5", "4"="Deaths6","5-9"="Deaths7","10-14"="Deaths8", "15-19"="Deaths9", "20-24"="Deaths10", "25-29"="Deaths11", "30-34"="Deaths12", "35-39"="Deaths13", "40-44"="Deaths14", "45-49"="Deaths15", "50-54"="Deaths16", "55-59"="Deaths17", "60-64"="Deaths18", "65-69"="Deaths19", "70-74"="Deaths20", "75-79"="Deaths21", "80-84"="Deaths22", "85-89"="Deaths23", "90-94"="Deaths24", "95+"="Deaths25", "unspecified"="Deaths26") %>%
+  subset(!grepl("^B\\d{0,2}$", Cause))%>%
+  subset(grepl("^B", Cause)) #I dunno why I had to do this twice in order to eliminate numbers
+
+SubcategoriesAndAgeGroups[is.na(SubcategoriesAndAgeGroups)] <- 0
+
+analysis <- SubcategoriesAndAgeGroups%>%
+  filter(Cause == "B210")%>%
+  pivot_longer(longer, names_to="Age", values_to="Deaths")
+
+#GGPLOT Countries side by side
+ggplot(data = analysis, aes(Age,Deaths))+
+  geom_bar(stat="identity", data = pick(~Countryname=="Germany, Former Democratic Republic"), color="Red")
+
+ggplot(data = analysis, aes(Age,Deaths))+
+  geom_bar(stat="identity", data = pick(~Countryname=="Germany, Former Federal Republic"), color="Blue")
 ```
-
-
-```{r}
-
-  
-poisoning <- coldwardataset%>%
-  filter(Cause=="B48" | Cause=="B50")%>%
-  filter(!Countryname=="USSR, Former")%>%
-  filter(!Countryname=="Russian Federation")
-
-ggplot(poisoning, aes(x=Year, y=Deathcount, group=Countryname, color=Countryname))+
-  geom_point()
-```
-
 
 TODO
 1. Add Zeros in cause.csv
@@ -214,4 +211,6 @@ TODO
    In the beginning divide into usefull clear datasets. Then divide by disease.
    Or switch to lesser datasets, when there are too much datasets. 
 8. Description for every ggplot. Legende
+9. Data in relation to the population
+10. Linear regression by comparing east and west germany. Or both with later germany.
 
