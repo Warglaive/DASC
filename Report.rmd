@@ -209,6 +209,7 @@ When comparing the countries by membership to either the Warsaw pact or NATO,
 we see that the suicide rate in the Warsaw pact countries is way higher. 
 Even when USSR is excluded.
 
+Linear regression model of the overall deaths compared to the age group 80-84
 ```{r}
 CategoriesAndAgeGroups <- mortalityicd9 %>%
   left_join(countrycodes, by = c("Country" = "country"))%>%
@@ -219,21 +220,27 @@ CategoriesAndAgeGroups <- mortalityicd9 %>%
   rename("Countryname" = "name","Country"="Country","Year"="Year","Cause"="Cause","OverallDeaths"="OverallDeaths","Sex"="Sex","0" = "Deaths2", "1"="Deaths3", "2"="Deaths4", "3"="Deaths5", "4"="Deaths6","5-9"="Deaths7","10-14"="Deaths8", "15-19"="Deaths9", "20-24"="Deaths10", "25-29"="Deaths11", "30-34"="Deaths12", "35-39"="Deaths13", "40-44"="Deaths14", "45-49"="Deaths15", "50-54"="Deaths16", "55-59"="Deaths17", "60-64"="Deaths18", "65-69"="Deaths19", "70-74"="Deaths20", "75-79"="Deaths21", "80-84"="Deaths22", "85-89"="Deaths23", "90-94"="Deaths24", "95+"="Deaths25", "unspecified"="Deaths26") %>%
   subset(!grepl("^B\\d{0,1}$", Cause))
 
-analysis <- CategoriesAndAgeGroups%>%
+AgeGroupComparsion <- CategoriesAndAgeGroups%>%
   filter(Cause == "B00")%>%
-  pivot_longer(longer, names_to="Age", values_to="DeathCause")%>%
-  filter(Age=="80-84")
+  pivot_longer(longer, names_to="Age", values_to="DeathsForAge",values_drop_na = TRUE)%>%
+  filter(Countryname=="Germany")
 
-ggplot(data=analysis, aes(y=OverallDeaths, x=DeathCause))+
-  geom_point()+
-  geom_smooth()
+ggplot(data=AgeGroupComparsion, aes(x=Age, y=DeathsForAge))+
+  geom_boxplot()
+```
+The overall deaths in Germany per 100.000 Inhabitants get compared to the age. 
+The cause of death in this case is "B00" and it stands for all death causes combined. When the age increases the number of deaths rises. The two biggest groups are the people in the age of 80-90.
 
-fit <- lm(DeathCause~OverallDeaths,data=analysis)
+```{r}
+analysis <- CategoriesAndAgeGroups%>%
+  filter(Cause=="B00",Countryname=="Germany")
+
+fit <- lm(OverallDeaths~analysis$`80-84`+analysis$`85-89`+analysis$`75-79`,data=analysis)
 summary(fit)
 plot(fit)
-
 ```
-The overall deaths per 100.000 Inhabitants get compared to one deathcause. It shows that its possible to compare these variables this way.
+Explain the output in Detail
+
 ```{r}
 analysis2 <- analysis%>%
   filter(Countryname=="Germany, Former Democratic Republic"|Countryname=="Germany, Former Federal Republic")
@@ -247,8 +254,8 @@ fit2 <- lm(DeathCause~OverallDeaths,data=analysis2)
 summary(fit2)
 plot(fit2)
 ```
-Compare East and West Germany with the unified Germany. In order to see if east and west are near together.
-Calculate the probability of the outcome. If east or west germany is more close.
+Fix and explain this in detail.
+
 
 TODO
 1. Add Zeros in cause.csv
@@ -263,6 +270,5 @@ TODO
    Or switch to lesser datasets, when there are too much datasets. 
 8. Description for every ggplot. Legende
 10. Linear regression by comparing east and west germany. Or both with later germany.
-11. All functions into one code Block in the beginning
 12. Does smoothed makes sense with USSR, Russia? Because The numbers seem to be higher then they are without them.
 13. Add regression equation
