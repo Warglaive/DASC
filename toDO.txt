@@ -1,0 +1,6 @@
+1.Add proper citation in question 1.
+2. Switch from geom_point to linear in the suicide overview.
+3. Explain commands after transforming. In a text under the code. Before the code the intention is mentioned. But not for visualisation. In Visualisation the legend will do the job.
+4. Add legend to ggplot.
+5. Countries with highest suicide rate in one overview. This is quite tricky I know how to do this. Just ask for help or a hint.
+I have to switch from overall cases to population related ones. I will do that right now. You can start with everything expect 1 after I did this. Idk now what changes I need to make. I will do this during this night. So tomorrow morning this is ready.
