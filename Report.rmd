@@ -13,7 +13,7 @@ https://www.who.int/data/data-collection-tools/who-mortality-database
 Packages
 All the needed packages and libraries are defined here.
 ```{r, setup, include=FALSE}
- knitr::opts_knit$set(root.dir = 'C:/Users/Jan/Documents/GitHub/DASC/resources')
+# knitr::opts_knit$set(root.dir = 'C:/Users/Jan/Documents/GitHub/DASC/resources')
 #knitr::opts_knit$set(root.dir = 'E:/DASC/resources')
 library(dplyr)
 library(ggplot2)
@@ -148,8 +148,11 @@ Is the suicide rate higher in countries part of the Warsaw pact?
 suiciderate <- coldwardataset%>%
   filter(Cause == "B54")
 
-ggplot(suiciderate, aes(x = Year, y = Deathcount, colour = Countryname))+
+suicideratePerCountryPlot <- ggplot(suiciderate, aes(x = Year, y = Deathcount, colour = Countryname))+
   geom_point()
+
+suicideratePerCountryPlot + theme(legend.position = "bottom")
+
 
 suicideranking <- suiciderate%>%
   group_by(Countryname)%>%
