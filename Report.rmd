@@ -147,8 +147,9 @@ Is the suicide rate higher in countries part of the Warsaw pact?
 suiciderate <- coldwardataset%>%
   filter(Cause == "B54")
 
-ggplot(suiciderate, aes(x = Year, y = Deathcount))+
-  geom_point()
+ggplot(suiciderate, aes(x = Year, y = Deathcount, colour=Countryname))+
+  geom_point()+
+  coord_flip()
 
 suicideranking <- suiciderate%>%
   group_by(Countryname)%>%
