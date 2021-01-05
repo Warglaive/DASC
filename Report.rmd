@@ -95,8 +95,8 @@ SubcategoriesAndAgeGroups <- mortalityicd9 %>%
   subset(!grepl("^B\\d{0,2}$", Cause))%>%
   subset(grepl("^B", Cause)) 
 
-#Explain why NULL == 0
-SubcategoriesAndAgeGroups[is.na(SubcategoriesAndAgeGroups)] <- 0
+#Explain why NULL == NA
+SubcategoriesAndAgeGroups[is.na(SubcategoriesAndAgeGroups)] <- NA
 ```
 
 Restricting the dataset

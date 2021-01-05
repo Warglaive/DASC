@@ -1,2 +1,53 @@
 3. Explain commands after transforming. In a text under the code. Before the code the intention is mentioned. But not for visualisation. In Visualisation the legend will do the job.
 5. Countries with highest suicide rate in one overview. This is quite tricky I know how to do this. Just ask for help or a hint.
+
+
+
+
+
+JAN:
+
+
+```{r}
+populationTidy <- population%>%
+  subset(select = c(1,4,5,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33))%>%
+  rename("Country" = "Country","Year"="Year", "Sex"="Sex","All"="Pop1", "0" = "Pop2", "1"="Pop3", "2"="Pop4", "3"="Pop5", "4"="Pop6","5-9"="Pop7","10-14"="Pop8", "15-19"="Pop9", "20-24"="Pop10", "25-29"="Pop11", "30-34"="Pop12", "35-39"="Pop13", "40-44"="Pop14", "45-49"="Pop15", "50-54"="Pop16", "55-59"="Pop17", "60-64"="Pop18", "65-69"="Pop19", "70-74"="Pop20", "75-79"="Pop21", "80-84"="Pop22", "85-89"="Pop23", "90-94"="Pop24", "95+"="Pop25", "unspecified"="Pop26","Birth"="Lb")
+
+dataset <- mortalityicd9 %>%
+  left_join(countrycodes, by = c("Country" = "country"))%>%
+  rename("Countryname" = "name") %>%
+  inner_join(populationTidy,by=c("Country"="Country","Sex"="Sex","Year"="Year"))%>%
+  mutate(Deathcount=Deaths1/All*100000)%>%
+  round_df(2)%>%
+  subset(select = c(1, 4, 6, 7, 10, 40,41,68))%>%
+  select(Countryname, Country, Year, Cause, Sex, Deaths1,Deathcount)%>%
+  rename("OverallDeaths" = "Deaths1")%>%
+  subset(grepl("^B\\d{0,2}$", Cause))
+
+subcategories <- mortalityicd9 %>%
+  left_join(countrycodes, by = c("Country" = "country"))%>%
+  rename("Countryname" = "name") %>%
+  inner_join(populationTidy,by=c("Country"="Country","Sex"="Sex","Year"="Year"))%>%
+  mutate(Deathcount=Deaths1/All*100000)%>%
+  round_df(2)%>%
+  subset(select = c(1, 4, 6, 7, 10, 40,41,68))%>%
+  select(Countryname, Country, Year, Cause, Sex, Deaths1,Deathcount)%>%
+  rename("OverallDeaths" = "Deaths1")%>%
+  subset(!grepl("^B\\d{0,2}$", Cause))%>%
+  subset(grepl("^B", Cause)) 
+
+longer <- c("0", "1", "2", "3", "4", "5-9","10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90-94", "95+", "unspecified")
+
+SubcategoriesAndAgeGroups <- mortalityicd9 %>%
+  left_join(countrycodes, by = c("Country" = "country"))%>%
+  inner_join(populationTidy,by=c("Country"="Country","Sex"="Sex","Year"="Year"))%>%
+  mutate(OverallDeaths=Deaths1/All*100000, Deaths2=Deaths2/All*100000, Deaths3=Deaths3/All*100000, Deaths4=Deaths4/All*100000, Deaths5=Deaths5/All*100000, Deaths6=Deaths6/All*100000,Deaths7=Deaths7/All*100000,Deaths8=Deaths8/All*100000,Deaths9=Deaths9/All*100000, Deaths10=Deaths10/All*100000,Deaths11=Deaths11/All*100000,Deaths12=Deaths12/All*100000,Deaths13=Deaths13/All*100000,Deaths14=Deaths14/All*100000,Deaths15=Deaths15/All*100000,Deaths16=Deaths16/All*100000,Deaths17=Deaths17/All*100000,Deaths18=Deaths18/All*100000,Deaths19=Deaths19/All*100000,Deaths20=Deaths20/All*100000,Deaths21=Deaths21/All*100000,Deaths22=Deaths22/All*100000,Deaths23=Deaths23/All*100000,Deaths24=Deaths24/All*100000,Deaths25=Deaths25/All*100000,Deaths26=Deaths26/All*100000)%>%
+  round_df(2)%>%
+  subset(select = c(40,1, 4, 6, 7, 68, 11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35))%>%
+  rename("Countryname" = "name","Country"="Country","Year"="Year","Cause"="Cause","Deathcount"="OverallDeaths","Sex"="Sex","0" = "Deaths2", "1"="Deaths3", "2"="Deaths4", "3"="Deaths5", "4"="Deaths6","5-9"="Deaths7","10-14"="Deaths8", "15-19"="Deaths9", "20-24"="Deaths10", "25-29"="Deaths11", "30-34"="Deaths12", "35-39"="Deaths13", "40-44"="Deaths14", "45-49"="Deaths15", "50-54"="Deaths16", "55-59"="Deaths17", "60-64"="Deaths18", "65-69"="Deaths19", "70-74"="Deaths20", "75-79"="Deaths21", "80-84"="Deaths22", "85-89"="Deaths23", "90-94"="Deaths24", "95+"="Deaths25", "unspecified"="Deaths26") %>%
+  subset(!grepl("^B\\d{0,2}$", Cause))%>%
+  subset(grepl("^B", Cause)) 
+
+#Explain why NULL == 0
+SubcategoriesAndAgeGroups[is.na(SubcategoriesAndAgeGroups)] <- NA
+```
