@@ -174,7 +174,6 @@ ggplot(suiciderate, aes(x = Year, y = Deathcount))+
   geom_line(data = pick(~Countryname == "United States of America" & Sex==2), colour = "red")+
     ggtitle("United States of America") 
 
-
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
   geom_line(data = pick(~Countryname == "Russian Federation" & Sex==1), colour = "blue")+
   geom_line(data = pick(~Countryname == "Russian Federation" & Sex==2), colour = "red")+
