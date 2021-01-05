@@ -165,16 +165,16 @@ suicideranking <- suiciderate%>%
 We can see that the data seems to be quite off.  
 ```{r}
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
-  geom_line(data = pick(~Countryname == "USSR, Former" & Sex==2), colour = "pink")+
+  geom_line(data = pick(~Countryname == "USSR, Former" & Sex==2), colour = "red")+
   geom_line(data = pick(~Countryname == "USSR, Former" & Sex==1), colour = "blue")
 
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
   geom_line(data = pick(~Countryname == "United States of America" & Sex==1), colour = "blue")+
-  geom_line(data = pick(~Countryname == "United States of America" & Sex==2), colour = "pink")
+  geom_line(data = pick(~Countryname == "United States of America" & Sex==2), colour = "red")
 
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
   geom_line(data = pick(~Countryname == "Russian Federation" & Sex==1), colour = "blue")+
-  geom_line(data = pick(~Countryname == "Russian Federation" & Sex==2), colour = "pink")
+  geom_line(data = pick(~Countryname == "Russian Federation" & Sex==2), colour = "red")
 ```
 We can see that the suicide rate in the former USSR is way higher then anywhere else. 
 We can see that the Russian Federation has the second highest overall suicide rate.

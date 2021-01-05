@@ -49,5 +49,5 @@ SubcategoriesAndAgeGroups <- mortalityicd9 %>%
   subset(grepl("^B", Cause)) 
 
 #Explain why NULL == 0
-SubcategoriesAndAgeGroups[is.na(SubcategoriesAndAgeGroups)] <- NA
+SubcategoriesAndAgeGroups[is.na(SubcategoriesAndAgeGroups)] <- 0
 ```
