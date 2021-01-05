@@ -162,7 +162,7 @@ suicideranking <- suiciderate%>%
   
 ```
 
-We can see that the date seems to be quite off.  
+We can see that the data seems to be quite off.  
 ```{r}
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
   geom_line(data = pick(~Countryname == "USSR, Former" & Sex==2), colour = "pink")+
