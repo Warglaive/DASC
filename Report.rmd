@@ -13,8 +13,8 @@ https://www.who.int/data/data-collection-tools/who-mortality-database
 Packages
 All the needed packages and libraries are defined here.
 ```{r, setup, include=FALSE}
-# knitr::opts_knit$set(root.dir = 'C:/Users/Jan/Documents/GitHub/DASC/resources')
-knitr::opts_knit$set(root.dir = 'E:/DASC/resources')
+knitr::opts_knit$set(root.dir = 'C:/Users/Jan/Documents/GitHub/DASC/resources')
+#knitr::opts_knit$set(root.dir = 'E:/DASC/resources')
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
@@ -165,19 +165,19 @@ suicideranking <- suiciderate%>%
 We can see that the data seems to be quite off.  
 ```{r}
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
-  geom_line(data = pick(~Countryname == "USSR, Former" & Sex==2), colour = "red")+
-  geom_line(data = pick(~Countryname == "USSR, Former" & Sex==1), colour = "blue")+
-  ggtitle("USSR, Former") 
+  geom_line(data = pick(~Countryname == "USSR, Former" & Sex==2))+
+  geom_line(data = pick(~Countryname == "USSR, Former" & Sex==1))+
+    scale_color_discrete(name = "Y series", labels = c("Y2", "Y1"))
 
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
   geom_line(data = pick(~Countryname == "United States of America" & Sex==1), colour = "blue")+
-  geom_line(data = pick(~Countryname == "United States of America" & Sex==2), colour = "red")+
-    ggtitle("United States of America") 
+  geom_line(data = pick(~Countryname == "United States of America" & Sex==2), colour = "red")
 
 ggplot(suiciderate, aes(x = Year, y = Deathcount))+
   geom_line(data = pick(~Countryname == "Russian Federation" & Sex==1), colour = "blue")+
-  geom_line(data = pick(~Countryname == "Russian Federation" & Sex==2), colour = "red")+
-  ggtitle("Russian Federation")
+  geom_line(data = pick(~Countryname == "Russian Federation" & Sex==2), colour = "red")
+
+
 ```
 We can see that the suicide rate in the former USSR is way higher then anywhere else. 
 We can see that the Russian Federation has the second highest overall suicide rate.
@@ -217,7 +217,7 @@ When comparing the countries by membership to either the Warsaw pact or NATO,
 we see that the suicide rate in the Warsaw pact countries is way higher. 
 Even when USSR is excluded.
 
-Linear regression model of the overall deaths compared to the age group 80-84
+Comparsion of the overall deathrate by age-group in Germany.
 ```{r}
 CategoriesAndAgeGroups <- mortalityicd9 %>%
   left_join(countrycodes, by = c("Country" = "country"))%>%
@@ -236,47 +236,25 @@ AgeGroupComparsion <- CategoriesAndAgeGroups%>%
 ggplot(data=AgeGroupComparsion, aes(x=Age, y=DeathsForAge))+
   geom_boxplot()
 ```
-The overall deaths in Germany per 100.000 Inhabitants get compared to the age. 
-The cause of death in this case is "B00" and it stands for all death causes combined. When the age increases the number of deaths rises. The two biggest groups are the people in the age of 80-90.
+The deaths per 100.000 inhabitants get compared by age group. The graph shows that after the age of 50 more people die.
 
+Linerar model: (regression with dummy varaibles) Age groups compared by their deathrate, in Germany.
+```{r}
+fit2 <- lm(DeathsForAge~Age,data=AgeGroupComparsion)
+summary(fit2)
+```
+When comparing all age groups with each other we can see that only the age groups of 50 and over are relevant.
 ```{r}
 analysis <- CategoriesAndAgeGroups%>%
   filter(Cause=="B00",Countryname=="Germany")
 
-fit <- lm(OverallDeaths~analysis$`80-84`+analysis$`85-89`+analysis$`75-79`,data=analysis)
+fit <- lm(OverallDeaths~analysis$`80-84`,data=analysis)
 summary(fit)
-plot(fit)
 ```
-Explain the output in Detail
 
 ```{r}
-analysis2 <- analysis%>%
-  filter(Countryname=="Germany, Former Democratic Republic"|Countryname=="Germany, Former Federal Republic")
-
-ggplot(data=analysis2, aes(y=OverallDeaths, x=DeathCause))+
-  geom_point()+
-  geom_smooth(data = pick(~Countryname=="Germany, Former Democratic Republic"), color="Red")+
-  geom_smooth(data = pick(~Countryname=="Germany, Former Federal Republic"), color="Blue")
-
-fit2 <- lm(DeathCause~OverallDeaths,data=analysis2)
-summary(fit2)
-plot(fit2)
+par(mfrow=c(2,2))
+plot(fit)
 ```
-Fix and explain this in detail.
-
-
-TODO
-1. Add Zeros in cause.csv
-  The zeros in the second column are missing reimport, rename and delete useless rows.
-2. Add proper citations in question1
-3. Switch from geom_point to linear
-4. Explain commands after using them in general. 
-5. Explain what you did during tiding
-6. Explain suicideRanking
-7. Clear naming convention 
-   In the beginning divide into usefull clear datasets. Then divide by disease.
-   Or switch to lesser datasets, when there are too much datasets. 
-8. Description for every ggplot. Legende
-10. Linear regression by comparing east and west germany. Or both with later germany.
-12. Does smoothed makes sense with USSR, Russia? Because The numbers seem to be higher then they are without them.
-13. Add regression equation
+The relationship of the deathrate in the age group between 80 and 84 and the overall deathrate is indeed statistically significant. Without the agegroup of 80-84 the deaths per 100.000 inhabitants would be 857. Whith every death in this age group the overall deaths raise by 1.15. The regression equation is OverallDeaths = 857 + 1,15.
+The residuals tell us that the average deviation of the OverallDeaths is 17.65. The age group of 80-84 would add 0.15 to this deviation.
