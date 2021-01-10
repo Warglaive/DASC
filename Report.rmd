@@ -1,6 +1,6 @@
 Exploration and analysis of the WHO mortality database.
 
-This notebook walks us trough a typical workflow of data analysis. From tiding the data to applying a linear regression model and in the end communicate the results of our analysis.
+This notebook walks us trough a typical workflow of data analysis. From tidying the data to applying a linear regression model and in the end communicating the results of our analysis.
 We do not want to show some kind of typical textbook example. Our goal is to display the real process. This means that we will ask questions about the data in our dataset and answer them with transformation and visualisation techniques. 
 In the end we want to apply a feasible linear regression model in order to gain insight into the future development of the data.
 
@@ -13,8 +13,8 @@ https://www.who.int/data/data-collection-tools/who-mortality-database
 Packages
 All the needed packages and libraries are defined here.
 ```{r, setup, include=FALSE}
-knitr::opts_knit$set(root.dir = 'C:/Users/Jan/Documents/GitHub/DASC/resources')
-#knitr::opts_knit$set(root.dir = 'E:/DASC/resources')
+#knitr::opts_knit$set(root.dir = 'C:/Users/Jan/Documents/GitHub/DASC/resources')
+knitr::opts_knit$set(root.dir = 'E:/DASC/resources')
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
@@ -217,7 +217,7 @@ When comparing the countries by membership to either the Warsaw pact or NATO,
 we see that the suicide rate in the Warsaw pact countries is way higher. 
 Even when USSR is excluded.
 
-Comparsion of the overall deathrate by age-group in Germany.
+Comparison of the overall death rate by age-group in Germany.
 ```{r}
 CategoriesAndAgeGroups <- mortalityicd9 %>%
   left_join(countrycodes, by = c("Country" = "country"))%>%
@@ -238,7 +238,7 @@ ggplot(data=AgeGroupComparsion, aes(x=Age, y=DeathsForAge))+
 ```
 The deaths per 100.000 inhabitants get compared by age group. The graph shows that after the age of 50 more people die.
 
-Linerar model: (regression with dummy varaibles) Age groups compared by their deathrate, in Germany.
+Linear model: (regression with dummy variables). Age groups compared by their deathrate, in Germany.
 ```{r}
 fit2 <- lm(DeathsForAge~Age,data=AgeGroupComparsion)
 summary(fit2)

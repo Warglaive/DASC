@@ -1,10 +1,3 @@
-3. Explain commands after transforming. In a text under the code. Before the code the intention is mentioned. But not for visualisation. In Visualisation the legend will do the job.
-5. Countries with highest suicide rate in one overview. This is quite tricky I know how to do this. Just ask for help or a hint.
-
-
-
-
-
 JAN:
 
 
