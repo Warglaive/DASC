@@ -95,7 +95,6 @@ SubcategoriesAndAgeGroups <- mortalityicd9 %>%
   subset(!grepl("^B\\d{0,2}$", Cause))%>%
   subset(grepl("^B", Cause)) 
 
-#Explain why NULL == NA
 SubcategoriesAndAgeGroups[is.na(SubcategoriesAndAgeGroups)] <- NA
 ```
 
@@ -256,5 +255,5 @@ summary(fit)
 par(mfrow=c(2,2))
 plot(fit)
 ```
-The relationship of the deathrate in the age group between 80 and 84 and the overall deathrate is indeed statistically significant. Without the agegroup of 80-84 the deaths per 100.000 inhabitants would be 857. Whith every death in this age group the overall deaths raise by 1.15. The regression equation is OverallDeaths = 857 + 1,15.
+The relationship of the deathrate in the age group between 80 and 84 and the overall deathrate is indeed statistically significant. Without the age group of 80-84 the deaths per 100.000 inhabitants would be 857. With every death in this age group the overall deaths raise by 1.15. The regression equation is OverallDeaths = 857 + 1,15.
 The residuals tell us that the average deviation of the OverallDeaths is 17.65. The age group of 80-84 would add 0.15 to this deviation.
